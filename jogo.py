@@ -1,6 +1,9 @@
-import pygame
 import os
+import pygame
 import random
+
+# Configurar o driver de áudio para 'dummy'
+os.environ['SDL_AUDIODRIVER'] = 'dummy'
 
 # Inicialização do Pygame
 pygame.init()
