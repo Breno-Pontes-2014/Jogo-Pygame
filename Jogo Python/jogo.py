@@ -68,6 +68,14 @@ def atualizar_obstaculos(obstaculos, Largura, Altura):
         obs[0] = random.randint(0, Largura - obs[2])
         obs[1] = random.randint(0, Altura - obs[3])
 
+def mostrar_tela_fim_jogo():
+    Tela.fill(ciano)
+    texto_fim = fonte.render("Você bateu em um obstáculo!", True, branco)
+    texto_opcao = fonte_2.render("Pressione R para reiniciar ou Q para sair", True, branco)
+    Tela.blit(texto_fim, (Largura // 2 - texto_fim.get_width() // 2, Altura // 2 - texto_fim.get_height() // 2))
+    Tela.blit(texto_opcao, (Largura // 2 - texto_opcao.get_width() // 2, Altura // 2 - texto_opcao.get_height() // 2 + 50))
+    pygame.display.update()
+
 def jogo():
     global Tela, Largura, Altura
 
@@ -88,6 +96,8 @@ def jogo():
     for _ in range(3):
         obstaculos.append([random.randint(0, Largura - 30), random.randint(0, Altura - 30), 30, 30])
 
+    fim_jogo = False
+
     while rodando:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -97,62 +107,50 @@ def jogo():
                 Tela = pygame.display.set_mode((Largura, Altura), pygame.RESIZABLE)
                 global texto_rect, texto_rect2, texto_rect3, texto_rect4
                 texto_rect, texto_rect2, texto_rect3, texto_rect4 = atualizar_posicoes(Largura, Altura)
-
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            bola_vel[0] = -0.6
-        elif keys[pygame.K_RIGHT]:
-            bola_vel[0] = 0.6
-        else:
-            bola_vel[0] = 0
-        if keys[pygame.K_UP]:
-            bola_vel[1] = -0.6
-        elif keys[pygame.K_DOWN]:
-            bola_vel[1] = 0.6
-        else:
-            bola_vel[1] = 0
-
-        bola_pos[0] += bola_vel[0]
-        bola_pos[1] += bola_vel[1]
-
-        if bola_pos[0] - bola_raio < 0:
-            bola_pos[0] = bola_raio
-        if bola_pos[0] + bola_raio > Largura:
-            bola_pos[0] = Largura - bola_raio
-        if bola_pos[1] - bola_raio < 0:
-            bola_pos[1] = bola_raio
-        if bola_pos[1] + bola_raio > Altura:
-            bola_pos[1] = Altura - bola_raio
-
-        if (bola_pos[0] + bola_raio > quadrado_pos[0] and bola_pos[0] - bola_raio < quadrado_pos[0] + quadrado_tamanho and
-                bola_pos[1] + bola_raio > quadrado_pos[1] and bola_pos[1] - bola_raio < quadrado_pos[1] + quadrado_tamanho):
-            quadrado_pos = [random.randint(0, Largura - quadrado_tamanho), random.randint(0, Altura - quadrado_tamanho)]
-            atualizar_obstaculos(obstaculos, Largura, Altura)
-            score += 1
-            coin_sound.play()
-
-        for obs in obstaculos:
-            if (bola_pos[0] + bola_raio > obs[0] and bola_pos[0] - bola_raio < obs[0] + obs[2] and
-                    bola_pos[1] + bola_raio > obs[1] and bola_pos[1] - bola_raio < obs[1] + obs[3]):
-                    texto_derrota = "Você bateu em um obstáculo! Você perdeu!"
-                    texto_renderizado_derrota = fonte_2.render(texto_derrota, True, branco)
-                    texto_derrota_2 = "O jogo está fechando..."
-                    texto_renderizado_derrota_2 = fonte_2.render(texto_derrota_2, True, branco)
-                    Tela.blit(texto_renderizado_derrota, (Largura // 2 - texto_renderizado_derrota.get_width() // 2, Altura // 2 - texto_renderizado_derrota.get_height() // 2))
-                    Tela.blit(texto_renderizado_derrota_2, (Largura // 2 - texto_renderizado_derrota_2.get_width() // 2, Altura // 2 - texto_renderizado_derrota_2.get_height() // 2 + 50))
-                    pygame.display.update()
-                    pygame.time.wait(1000)
-                    
-                    # Centralizar a imagem de desligamento
-                    desligar_img_resized = pygame.transform.scale(desligar_img, (Largura // 2, Altura // 2))
-                    img_x = (Largura - desligar_img_resized.get_width()) // 2
-                    img_y = (Altura - desligar_img_resized.get_height()) // 2
-                    Tela.blit(desligar_img_resized, (img_x, img_y))
-                    
-                    pygame.display.update()
-                    desligar_sound.play()
-                    pygame.time.wait(3500)
+            elif event.type == pygame.KEYDOWN and fim_jogo:
+                if event.key == pygame.K_r:
+                    jogo()  # Reinicia o jogo
+                elif event.key == pygame.K_q:
                     rodando = False
+
+        if not fim_jogo:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                bola_vel[0] = -0.6
+            elif keys[pygame.K_RIGHT]:
+                bola_vel[0] = 0.6
+            else:
+                bola_vel[0] = 0
+            if keys[pygame.K_UP]:
+                bola_vel[1] = -0.6
+            elif keys[pygame.K_DOWN]:
+                bola_vel[1] = 0.6
+            else:
+                bola_vel[1] = 0
+
+            bola_pos[0] += bola_vel[0]
+            bola_pos[1] += bola_vel[1]
+
+            if bola_pos[0] - bola_raio < 0:
+                bola_pos[0] = bola_raio
+            if bola_pos[0] + bola_raio > Largura:
+                bola_pos[0] = Largura - bola_raio
+            if bola_pos[1] - bola_raio < 0:
+                bola_pos[1] = bola_raio
+            if bola_pos[1] + bola_raio > Altura:
+                bola_pos[1] = Altura - bola_raio
+
+            if (bola_pos[0] + bola_raio > quadrado_pos[0] and bola_pos[0] - bola_raio < quadrado_pos[0] + quadrado_tamanho and
+                    bola_pos[1] + bola_raio > quadrado_pos[1] and bola_pos[1] - bola_raio < quadrado_pos[1] + quadrado_tamanho):
+                quadrado_pos = [random.randint(0, Largura - quadrado_tamanho), random.randint(0, Altura - quadrado_tamanho)]
+                atualizar_obstaculos(obstaculos, Largura, Altura)
+                score += 1
+                coin_sound.play()
+
+            for obs in obstaculos:
+                if (bola_pos[0] + bola_raio > obs[0] and bola_pos[0] - bola_raio < obs[0] + obs[2] and
+                        bola_pos[1] + bola_raio > obs[1] and bola_pos[1] - bola_raio < obs[1] + obs[3]):
+                        fim_jogo = True
 
         Tela.fill(ciano)
 
@@ -164,6 +162,9 @@ def jogo():
 
         score_renderizado = font_score.render(f'Pontuação: {score}', True, branco)
         Tela.blit(score_renderizado, (10, 10))
+
+        if fim_jogo:
+            mostrar_tela_fim_jogo()
 
         pygame.display.update()
 
